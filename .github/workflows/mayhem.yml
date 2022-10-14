@@ -7,11 +7,21 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  TRY_COMPRESSION_MAYHEMFILE: mayhem/try_compression.mayhemfile
 
 jobs:
   build:
-    name: 'build mayhem fuzzing container'
-    runs-on: ubuntu-latest
+    name: "${{ matrix.os }} shared=${{ matrix.shared }} ${{ matrix.build_type }}"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        shared: [false]
+        build_type: [Release]
+        include:
+          - os: ubuntu-latest
+            triplet: x64-linux
+
     steps:
       - uses: actions/checkout@v2
 
@@ -32,28 +42,19 @@ jobs:
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: .
-          file: mayhem/Dockerfile
+          file: mayhem/mayhem.Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-    outputs:
-      image: ${{ steps.meta.outputs.tags }}
-
-  mayhem:
-    needs: build
-    name: 'fuzz ${{ matrix.mayhemfile }}'
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        mayhemfile:
-          - mayhem/try_compression.mayhemfile
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Start analysis for ${{ matrix.mayhemfile }}
+      - name: Start analysis for try_compression
         uses: ForAllSecure/mcode-action@v1
         with:
           mayhem-token: ${{ secrets.MAYHEM_TOKEN }}
-          args: --image ${{ needs.build.outputs.image }} --file ${{ matrix.mayhemfile }} --duration 300
+          args: --image ${{ steps.meta.outputs.tags }} --file ${{ env.TRY_COMPRESSION_MAYHEMFILE }} --duration 1200
           sarif-output: sarif
+
+      - name: Upload SARIF file(s)
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: sarif
