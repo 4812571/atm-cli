@@ -1,12 +1,12 @@
 # Build Stage
 FROM ghcr.io/evanrichter/cargo-fuzz:latest AS builder
 
-## Install build dependencies.
-RUN cargo install -f cargo-fuzz
-
 ## Add source code to the build stage.
 ADD . /src
 WORKDIR /src
+
+# Install Submodules
+RUN git submodule update --init --recursive
 RUN cd fuzz && cargo fuzz build
 
 # Package Stage
