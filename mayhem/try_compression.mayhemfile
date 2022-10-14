@@ -3,5 +3,4 @@ target: fuzz_compression
 
 cmds:
   - cmd: /fuzz/fuzz_fuzz_try_compression
-
-timeout: 1200
+    timeout: 1200
