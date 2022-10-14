@@ -1,0 +1,6 @@
+project: atm-cli
+target: fuzz_compression
+
+cmds:
+  - cmd: /fuzz/fuzz_fuzz_try_compression
+    libfuzzer: true

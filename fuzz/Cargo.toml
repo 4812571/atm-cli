@@ -1,0 +1,24 @@
+[package]
+name = "atm-cli-fuzz"
+version = "0.0.0"
+authors = ["Automatically generated"]
+publish = false
+edition = "2018"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+
+[dependencies.atm]
+path = ".."
+
+[workspace]
+members = ["."]
+
+[[bin]]
+name = "fuzz_try_compression"
+path = "fuzz_targets/try_compression.rs"
+test = false
+doc = false

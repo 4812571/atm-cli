@@ -38,7 +38,9 @@ pub enum CompressionArgError {
 **************************/
 
 /// Parse [flate2::Compression](../../../flate2/struct.Compression.html) from `&str`
-pub(crate) fn try_compression_from_str(arg: &str) -> Result<Compression, CompressionArgError> {
+/// switched from 'pub(crate)' to 'pub' for fuzz testing - let me know if there's a better way to do this.
+/// I'm not quite a rustacean yet, my apologies.
+pub fn try_compression_from_str(arg: &str) -> Result<Compression, CompressionArgError> {
     let compression_level = arg.parse::<u32>()?;
     if compression_level > 9 {
         return Err(CompressionArgError::ValueOutOfRange { input: compression_level });
